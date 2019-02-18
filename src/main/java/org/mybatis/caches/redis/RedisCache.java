@@ -1,5 +1,5 @@
 /**
- *    Copyright 2015-2018 the original author or authors.
+ *    Copyright 2015-2019 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -54,11 +54,15 @@ public final class RedisCache implements Cache {
 
   // TODO Review this is UNUSED
   private Object execute(RedisCallback callback) {
-    Jedis jedis = pool.getResource();
     try {
-      return callback.doWithRedis(jedis);
-    } finally {
-      jedis.close();
+      Jedis jedis = pool.getResource();
+      try {
+        return callback.doWithRedis(jedis);
+      } finally {
+        jedis.close();
+      }
+    } catch (Exception e) {
+      return callback.doWithError(e);
     }
   }
 
@@ -75,6 +79,11 @@ public final class RedisCache implements Cache {
         Map<byte[], byte[]> result = jedis.hgetAll(id.getBytes());
         return result.size();
       }
+
+      @Override
+      public Object doWithError(Exception e) {
+        return 0;
+      }
     });
   }
 
@@ -90,6 +99,11 @@ public final class RedisCache implements Cache {
         }
         return null;
       }
+
+      @Override
+      public Object doWithError(Exception e) {
+        return null;
+      }
     });
   }
 
@@ -99,6 +113,11 @@ public final class RedisCache implements Cache {
       @Override
       public Object doWithRedis(Jedis jedis) {
         return redisConfig.getSerializer().unserialize(jedis.hget(id.getBytes(), key.toString().getBytes()));
+      }
+
+      @Override
+      public Object doWithError(Exception e) {
+        return null;
       }
     });
   }
@@ -110,6 +129,11 @@ public final class RedisCache implements Cache {
       public Object doWithRedis(Jedis jedis) {
         return jedis.hdel(id, key.toString());
       }
+
+      @Override
+      public Object doWithError(Exception e) {
+        return null;
+      }
     });
   }
 
@@ -119,6 +143,11 @@ public final class RedisCache implements Cache {
       @Override
       public Object doWithRedis(Jedis jedis) {
         jedis.del(id);
+        return null;
+      }
+
+      @Override
+      public Object doWithError(Exception e) {
         return null;
       }
     });

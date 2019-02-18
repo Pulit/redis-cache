@@ -28,7 +28,7 @@
 
     <groupId>org.mybatis.caches</groupId>
     <artifactId>mybatis-redis</artifactId>
-    <version>1.0.0-beta3.1-SNAPSHOT</version>
+    <version>1.0.0-beta3.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>mybatis-redis</name>
